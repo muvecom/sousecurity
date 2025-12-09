@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Demandas - Security</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(30, 64, 175, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Form */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-section h3 {
+            font-size: 1.1rem;
+            color: #1e40af;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section h3::before {
+            content: attr(data-number);
+            background: #1e40af;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-help {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* Range Slider */
+        .range-slider {
+            margin-top: 16px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .current-value {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        /* Checkboxes */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+
+        /* Buttons */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .results-container {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .results-header h2 {
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .results-count {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .export-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: #059669;
+        }
+
+        /* Contacts Table */
+        .contacts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .contacts-table th {
+            background: #f1f5f9;
+            padding: 14px;
+            text-align: left;
+            color: #475569;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .contacts-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .contacts-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .email-link {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .email-link:hover {
+            text-decoration: underline;
+        }
+
+        .linkedin-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #0077b5;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .linkedin-link:hover {
+            background: #005582;
+        }
+
+        /* Status */
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #dc2626;
+            display: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+            
+            .contacts-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔐 Gerador de Demandas Security</h1>
+            <p class="subtitle">Encontre empresas com necessidade ativa de segurança patrimonial</p>
+        </header>
+
+        <div class="form-container">
+            <form id="securityForm">
+                <!-- Seção 1: Segmento -->
+                <div class="form-section">
+                    <h3 data-number="1">Segmento do Cliente</h3>
+                    <div class="form-group">
+                        <label for="segment">Selecione o segmento de atuação:</label>
+                        <select id="segment" name="segment" required>
+                            <option value="">Selecione um segmento...</option>
+                            <option value="construcao_civil">Construção Civil</option>
+                            <option value="industria">Indústria</option>
+                            <option value="hospitais">Hospitais</option>
+                            <option value="logistica">Logística & Distribuição</option>
+                            <option value="mineracao">Mineração</option>
+                            <option value="varejo">Varejo</option>
+                            <option value="telecom">Telecomunicações</option>
+                            <option value="educacao">Instituições de Ensino</option>
+                            <option value="hotelaria">Hotelaria & Turismo</option>
+                            <option value="condominios">Condomínios</option>
+                            <option value="bancos">Bancos & Financeiras</option>
+                            <option value="infraestrutura">Infraestrutura</option>
+                        </select>
+                        <p class="form-help">Segmentos atendidos pela Security</p>
+                    </div>
+                </div>
+
+                <!-- Seção 2: Cargo e Localização -->
+                <div class="form-row">
+                    <div class="form-section">
+                        <h3 data-number="2">Cargo do Decisor</h3>
+                        <div class="form-group">
+                            <label for="role">Cargo do influenciador/decisor:</label>
+                            <select id="role" name="role" required>
+                                <option value="">Selecione um cargo...</option>
+                                <option value="facilities">Gestor de Facilities</option>
+                                <option value="seguranca">Gestor de Segurança</option>
+                                <option value="operacoes">Diretor/Gerente de Operações</option>
+                                <option value="administrativo">Diretor Administrativo</option>
+                                <option value="compras">Gestor de Compras</option>
+                                <option value="rh">Gestor de RH</option>
+                                <option value="patrimonio">Gestor de Patrimônio</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 data-number="3">Localização</h3>
+                        <div class="form-group">
+                            <label for="location">Cidade com base operacional:</label>
+                            <select id="location" name="location" required>
+                                <option value="">Selecione uma cidade...</option>
+                                <option value="sao_paulo">São Paulo - SP</option>
+                                <option value="rio_de_janeiro">Rio de Janeiro - RJ</option>
+                                <option value="belo_horizonte">Belo Horizonte - MG</option>
+                                <option value="curitiba">Curitiba - PR</option>
+                                <option value="goiania">Goiânia - GO</option>
+                                <option value="vitoria">Vitória - ES</option>
+                                <option value="campinas">Campinas - SP</option>
+                                <option value="ribeirao_preto">Ribeirão Preto - SP</option>
+                                <option value="porto_alegre">Porto Alegre - RS</option>
+                                <option value="itajai">Itajaí - SC</option>
+                                <option value="cuiaba">Cuiabá - MT</option>
+                                <option value="campo_grande">Campo Grande - MS</option>
+                                <option value="lauro_de_freitas">Lauro de Freitas - BA</option>
+                                <option value="presidente_prudente">Presidente Prudente - SP</option>
+                            </select>
+                            <p class="form-help">Cidades com base operacional da Security</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção 4: Porte da Empresa -->
+                <div class="form-section">
+                    <h3 data-number="4">Porte da Empresa</h3>
+                    <div class="form-group">
+                        <label for="employees_min">Número mínimo de funcionários:</label>
+                        <div class="range-slider">
+                            <input type="range" id="employees_min" name="employees_min" 
+                                   min="10" max="1000" step="10" value="50" class="slider">
+                            <div class="slider-labels">
+                                <span>10+</span>
+                                <span class="current-value" id="employeesValue">50+ funcionários</span>
+                                <span>1000+</span>
+                            </div>
+                        </div>
+                        <p class="form-help">Recomendado: 50+ funcionários para serviços Security</p>
+                    </div>
+                </div>
+
+                <!-- Seção 5: Sinalizadores de Oportunidade -->
+                <div class="form-section">
+                    <h3 data-number="5">Sinalizadores de Oportunidade (opcional)</h3>
+                    <div class="checkbox-grid" id="painSignalsContainer">
+                        <!-- Checkboxes serão gerados dinamicamente -->
+                    </div>
+                    <p class="form-help">Indicadores de "dor" que a Security pode resolver</p>
+                </div>
+
+                <!-- Seção 6: Quantidade -->
+                <div class="form-row">
+                    <div class="form-section">
+                        <h3 data-number="6">Quantidade de Resultados</h3>
+                        <div class="form-group">
+                            <label for="per_page">Resultados por página:</label>
+                            <select id="per_page" name="per_page">
+                                <option value="10">10 contatos</option>
+                                <option value="25" selected>25 contatos</option>
+                                <option value="50">50 contatos</option>
+                                <option value="100">100 contatos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 data-number="7">Limite Máximo</h3>
+                        <div class="form-group">
+                            <label for="max_contacts">Máximo de contatos:</label>
+                            <input type="number" id="max_contacts" name="max_contacts" 
+                                   min="10" max="200" value="50">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>🔍</span>
+                    <span id="btnText">Buscar Demandas de Segurança</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Sem Resultados -->
+        <div class="no-results" id="noResults">
+            <h3>Nenhum resultado encontrado</h3>
+            <p>Tente ajustar os filtros de busca</p>
+        </div>
+
+        <!-- Resultados -->
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <h2>
+                    📋 Resultados Encontrados
+                    <span class="results-count" id="resultsCount">0 contatos</span>
+                </h2>
+                <button class="export-btn" id="exportBtn">
+                    <span>📥</span> Exportar CSV
+                </button>
+            </div>
+
+            <div id="contactsTableContainer">
+                <!-- Tabela será gerada dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações
+        const PAIN_SIGNALS = [
+            { id: 'expansao', label: 'Expansão/Nova Unidade' },
+            { id: 'seguranca', label: 'Problemas de Segurança' },
+            { id: 'terceirizacao', label: 'Terceirização/Contratação' },
+            { id: 'eficiencia', label: 'Busca por Eficiência' },
+            { id: 'conformidade', label: 'Conformidade/Certificações' },
+            { id: 'tecnologia', label: 'Modernização Tecnológica' }
+        ];
+
+        // Estado da aplicação
+        let currentResults = null;
+        let isLoading = false;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar sinalizadores de dor
+            setupPainSignals();
+            
+            // Configurar eventos
+            setupEventListeners();
+        });
+
+        function setupPainSignals() {
+            const container = document.getElementById('painSignalsContainer');
+            PAIN_SIGNALS.forEach(signal => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="signal_${signal.id}" value="${signal.id}">
+                    <label for="signal_${signal.id}">${signal.label}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function setupEventListeners() {
+            // Slider de funcionários
+            const slider = document.getElementById('employees_min');
+            const valueDisplay = document.getElementById('employeesValue');
+            
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = `${this.value}+ funcionários`;
+            });
+
+            // Formulário
+            document.getElementById('securityForm').addEventListener('submit', handleSubmit);
+            
+            // Botão de exportação
+            document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            // Coletar dados do formulário
+            const formData = {
+                mode: 'security_demand',
+                segment: document.getElementById('segment').value,
+                role: document.getElementById('role').value,
+                location: document.getElementById('location').value,
+                employees_min: parseInt(document.getElementById('employees_min').value),
+                per_page: parseInt(document.getElementById('per_page').value),
+                max_contacts: parseInt(document.getElementById('max_contacts').value),
+                pain_signals: []
+            };
+
+            // Coletar sinalizadores de dor selecionados
+            PAIN_SIGNALS.forEach(signal => {
+                const checkbox = document.getElementById(`signal_${signal.id}`);
+                if (checkbox.checked) {
+                    formData.pain_signals.push(signal.id);
+                }
+            });
+
+            // Validar dados
+            if (!formData.segment || !formData.role || !formData.location) {
+                showError('Preencha todos os campos obrigatórios');
+                return;
+            }
+
+            // Mostrar loading
+            setLoading(true);
+            hideError();
+            hideResults();
+
+            try {
+                // Aqui você deve substituir pela URL do seu webhook n8n
+                const webhookUrl = 'https://api.muvecom.com.br/v1/sdr/person-lookup-v2';
+                
+                // Para demonstração, vamos usar dados mockados
+                // Remova esta linha e descomente a próxima para usar a API real
+                const mockData = await simulateApiCall(formData);
+                displayResults(mockData);
+                
+                // Para API real (descomente quando configurar o n8n):
+                // const response = await fetch(webhookUrl, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(formData)
+                // });
+                // const data = await response.json();
+                // displayResults(data);
+                
+            } catch (error) {
+                showError('Erro ao buscar demandas. Verifique sua conexão e tente novamente.');
+                console.error('Erro:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Função de simulação para demonstração
+        async function simulateApiCall(formData) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    // Dados mockados para demonstração
+                    const mockResults = {
+                        companies: [
+                            {
+                                id: '1',
+                                name: 'Construtora XYZ Ltda',
+                                location: 'São Paulo, SP',
+                                employees: '350',
+                                industry: 'Construction'
+                            },
+                            {
+                                id: '2',
+                                name: 'Hospital Santa Maria',
+                                location: 'São Paulo, SP',
+                                employees: '1200',
+                                industry: 'Hospitals & Health Care'
+                            },
+                            {
+                                id: '3',
+                                name: 'Logística Brasil Express',
+                                location: 'São Paulo, SP',
+                                employees: '850',
+                                industry: 'Logistics & Supply Chain'
+                            }
+                        ],
+                        contacts: [
+                            {
+                                name: 'Carlos Silva',
+                                title: 'Facilities Manager',
+                                email: 'carlos.silva@construtora-xyz.com',
+                                linkedin_url: 'https://linkedin.com/in/carlos-silva',
+                                company_name: 'Construtora XYZ Ltda',
+                                experience: '15 anos em gestão de facilities',
+                                priority: 'alta'
+                            },
+                            {
+                                name: 'Ana Santos',
+                                title: 'Security Director',
+                                email: 'ana.santos@hospitalsantamaria.com',
+                                linkedin_url: 'https://linkedin.com/in/ana-santos',
+                                company_name: 'Hospital Santa Maria',
+                                experience: '12 anos em segurança hospitalar',
+                                priority: 'media'
+                            },
+                            {
+                                name: 'Roberto Lima',
+                                title: 'Operations Manager',
+                                email: 'roberto.lima@logisticabrasil.com',
+                                linkedin_url: 'https://linkedin.com/in/roberto-lima',
+                                company_name: 'Logística Brasil Express',
+                                experience: 'Gestão de operações logísticas',
+                                priority: 'alta'
+                            }
+                        ],
+                        total_contacts: 3,
+                        contacts_with_emails: 3,
+                        status: 'SUCESSO'
+                    };
+                    
+                    resolve(mockResults);
+                }, 1500); // Simula delay de rede
+            });
+        }
+
+        function displayResults(data) {
+            currentResults = data;
+            
+            if (!data.contacts || data.contacts.length === 0) {
+                document.getElementById('noResults').style.display = 'block';
+                return;
+            }
+            
+            // Atualizar contador
+            document.getElementById('resultsCount').textContent = 
+                `${data.total_contacts} contato${data.total_contacts !== 1 ? 's' : ''}`;
+            
+            // Gerar tabela
+            const container = document.getElementById('contactsTableContainer');
+            container.innerHTML = generateTableHTML(data.contacts);
+            
+            // Mostrar resultados
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('noResults').style.display = 'none';
+            
+            // Scroll para resultados
+            document.getElementById('resultsContainer').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        function generateTableHTML(contacts) {
+            let html = `
+                <table class="contacts-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Cargo</th>
+                            <th>Empresa</th>
+                            <th>Email</th>
+                            <th>LinkedIn</th>
+                            <th>Prioridade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            contacts.forEach(contact => {
+                const priorityIcon = contact.priority === 'alta' ? '🔥' : 
+                                   contact.priority === 'media' ? '⚡' : '📄';
+                const priorityClass = contact.priority || 'media';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${contact.name}</strong>
+                            ${contact.priority === 'alta' ? 
+                                '<span style="color: #dc2626; font-size: 0.9rem; margin-left: 8px;">🔥 Alta</span>' : 
+                                ''}
+                        </td>
+                        <td>${contact.title}</td>
+                        <td>${contact.company_name}</td>
+                        <td>
+                            ${contact.email ? 
+                                `<a href="mailto:${contact.email}" class="email-link">${contact.email}</a>` :
+                                '<span style="color: #94a3b8; font-style: italic;">Não disponível</span>'}
+                        </td>
+                        <td>
+                            ${contact.linkedin_url ? 
+                                `<a href="${contact.linkedin_url}" target="_blank" class="linkedin-link">
+                                    <span>🔗</span> Perfil
+                                </a>` :
+                                '<span style="color: #94a3b8; font-style: italic;">Não disponível</span>'}
+                        </td>
+                        <td>
+                            <span style="font-size: 1.2rem;">${priorityIcon}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            return html;
+        }
+
+        function exportToCSV() {
+            if (!currentResults || !currentResults.contacts) return;
+            
+            const headers = ['Nome', 'Cargo', 'Empresa', 'Email', 'LinkedIn', 'Prioridade'];
+            const csvContent = [
+                headers.join(','),
+                ...currentResults.contacts.map(contact => [
+                    `"${contact.name}"`,
+                    `"${contact.title}"`,
+                    `"${contact.company_name}"`,
+                    `"${contact.email || 'Não disponível'}"`,
+                    `"${contact.linkedin_url || 'Não disponível'}"`,
+                    `"${contact.priority || 'Média'}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `demandas_security_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+        }
+
+        function setLoading(loading) {
+            isLoading = loading;
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            if (loading) {
+                btn.disabled = true;
+                btnText.innerHTML = '<div class="spinner"></div> Buscando Demandas...';
+            } else {
+                btn.disabled = false;
+                btnText.textContent = 'Buscar Demandas de Segurança';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function hideResults() {
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('noResults').style.display = 'none';
+        }
+
+        // Função para preencher com dados de exemplo (útil para testes)
+        window.fillExampleData = function() {
+            document.getElementById('segment').value = 'construcao_civil';
+            document.getElementById('role').value = 'facilities';
+            document.getElementById('location').value = 'sao_paulo';
+            document.getElementById('employees_min').value = 100;
+            document.getElementById('employeesValue').textContent = '100+ funcionários';
+            
+            // Selecionar alguns checkboxes
+            document.getElementById('signal_expansao').checked = true;
+            document.getElementById('signal_seguranca').checked = true;
+        };
+    </script>
+</body>
+</html>
